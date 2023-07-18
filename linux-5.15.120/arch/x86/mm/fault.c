@@ -714,6 +714,7 @@ kernelmode_fixup_or_oops(struct pt_regs *regs, unsigned long error_code,
 			 u32 pkey)
 {
 	int (*UB_fault_address_space)(unsigned long, struct task_struct *, unsigned long);
+	struct task_struct *tsk = current;
 	
 	WARN_ON_ONCE(user_mode(regs));
 

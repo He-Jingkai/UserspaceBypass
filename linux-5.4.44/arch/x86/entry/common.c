@@ -274,9 +274,13 @@ __visible inline void syscall_return_slowpath(struct pt_regs *regs)
 	prepare_exit_to_usermode(regs);
 }
 
+void(*zz_var)(struct pt_regs *, unsigned long ts);
+EXPORT_SYMBOL(zz_var);
+
 #ifdef CONFIG_X86_64
 __visible void do_syscall_64(unsigned long nr, struct pt_regs *regs)
 {
+	unsigned long ts = ktime_get_boottime_ns();
 	struct thread_info *ti;
 
 	enter_from_user_mode();
@@ -296,7 +300,8 @@ __visible void do_syscall_64(unsigned long nr, struct pt_regs *regs)
 		regs->ax = x32_sys_call_table[nr](regs);
 #endif
 	}
-
+	if(zz_var != NULL)
+		(*zz_var)(regs, ts);
 	syscall_return_slowpath(regs);
 }
 #endif

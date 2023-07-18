@@ -70,8 +70,12 @@ static __always_inline bool do_syscall_x32(struct pt_regs *regs, int nr)
 	return false;
 }
 
+void(*zz_var)(struct pt_regs *, unsigned long ts);
+EXPORT_SYMBOL(zz_var);
+
 __visible noinstr void do_syscall_64(struct pt_regs *regs, int nr)
 {
+	unsigned long ts = ktime_get_boottime_ns();
 	add_random_kstack_offset();
 	nr = syscall_enter_from_user_mode(regs, nr);
 
@@ -83,6 +87,8 @@ __visible noinstr void do_syscall_64(struct pt_regs *regs, int nr)
 	}
 
 	instrumentation_end();
+	if(zz_var != NULL)
+		(*zz_var)(regs, ts);
 	syscall_exit_to_user_mode(regs);
 }
 #endif

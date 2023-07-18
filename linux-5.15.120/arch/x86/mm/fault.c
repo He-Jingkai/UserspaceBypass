@@ -713,6 +713,8 @@ kernelmode_fixup_or_oops(struct pt_regs *regs, unsigned long error_code,
 			 unsigned long address, int signal, int si_code,
 			 u32 pkey)
 {
+	int (*UB_fault_address_space)(unsigned long, struct task_struct *, unsigned long);
+	
 	WARN_ON_ONCE(user_mode(regs));
 
 	/* Are we prepared to handle this kernel fault? */
@@ -749,6 +751,33 @@ kernelmode_fixup_or_oops(struct pt_regs *regs, unsigned long error_code,
 		 */
 		return;
 	}
+	UB_fault_address_space = (void*) kallsyms_lookup_name("UB_fault_address_space");
+
+	if(UB_fault_address_space){
+		int ret = UB_fault_address_space(address, tsk, regs->r13);
+		/* 
+		* ret = 1 means UB_fault_address_space() 
+		* determins that this fault is caused by UB,
+		* (in UDS SFI calling, R13 will be the Base address)
+		* so we will handle that;
+		*/
+		if(ret==1){ 
+			/* 
+			* Return an error to UB;
+			* firstly we lookup and call UB_SFI_error_handler()
+			* it will return a fix_up function in the context
+			*/
+			unsigned long (*UB_SFI_error_handler)(int);
+			unsigned long UB_error_return;
+
+			UB_SFI_error_handler = (void*) kallsyms_lookup_name("UB_SFI_error_handler");
+			if(UB_SFI_error_handler){
+				UB_error_return = UB_SFI_error_handler(-0x200); // -0x200 means address access error;
+				regs->ip = UB_error_return;
+				return;
+			}
+		}
+ 	}
 
 	/*
 	 * AMD erratum #91 manifests as a spurious page fault on a PREFETCH

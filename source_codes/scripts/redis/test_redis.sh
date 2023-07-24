@@ -4,7 +4,7 @@
 
 repeat_time=10
 bytes_size=(1 4 16 64 256 1024 4096 16384)
-
+ip=127.0.0.1
 
 do_test(){
         echo "redis $1 test"
@@ -14,7 +14,7 @@ do_test(){
                 if [ $1 == "get" ]
                 then
                         # Here you need to change the ip address and port to the server's redis.
-                        ./redis-benchmark -h 192.168.20.1 -p 6379 -t set -n 1000000 -d $each --threads 2
+                        ./redis-benchmark -h $ip -p 6379 -t set -n 1000000 -d $each --threads 2
 			sleep 2
                         echo 'set done'
                 fi
@@ -23,7 +23,7 @@ do_test(){
                 for j in `seq 1 $repeat_time`
                 do
                         echo "----- times: $j -----"
-			./redis-benchmark -h 192.168.20.1 -p 6379 -t $1 -n 1000000 -d $each --threads 2 | sed -n '/per second/p' | awk '{printf("'$each' %.3f\n",$1/1000)}' >> $2
+			./redis-benchmark -h $ip -p 6379 -t $1 -n 1000000 -d $each --threads 2 | sed -n '/per second/p' | awk '{printf("'$each' %.3f\n",$1/1000)}' >> $2
                         
                 	echo "***** $each ending *****"
 
@@ -33,7 +33,7 @@ do_test(){
                 echo   >> $2
                 if [ $1 == "get" ]
                 then
-		        ./redis-cli -h 192.168.20.1 -p 6379 flushall
+		        ./redis-cli -h $ip -p 6379 flushall
                         echo 'flush done'
                 fi
 
@@ -44,11 +44,11 @@ do_test(){
 }
 
 touch $2/$1
-./redis-cli -h 192.168.20.1 -p 6379 flushall
+./redis-cli -h $ip -p 6379 flushall
 echo 'set set' >> $2/$1
 do_test set $2/$1
 
-./redis-cli -h 192.168.20.1 -p 6379 flushall
+./redis-cli -h $ip -p 6379 flushall
 
 echo 'get get' >> $2/$1
 sleep 3 

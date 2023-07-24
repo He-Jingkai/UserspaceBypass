@@ -5,6 +5,7 @@
 #include <linux/sched.h>
 #include <asm/fsgsbase.h>
 #include <asm/smap.h>
+#include <linux/vmalloc.h>
 
 #include "stat.h"
 #include "exe.h"

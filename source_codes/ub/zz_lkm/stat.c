@@ -1,8 +1,9 @@
-#include <asm/smp.h>
+#include <linux/smp.h>
 #include <asm/current.h>
 #include <linux/sched.h>
 #include "stat.h"
 #include "exe.h"
+#include <linux/vmalloc.h>
 
 struct per_cpu_info* info;
 static const int syscall_short_th = 1300; // 1200; //800; //0.4us gap to be short syscall + 0.4 syscall entry&exit

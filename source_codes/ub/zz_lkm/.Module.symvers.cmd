@@ -1,1 +1,0 @@
-cmd_/home/hjk/workspace/UB/UserspaceBypass/source_codes/ub/zz_lkm/Module.symvers := sed 's/\.ko$$/\.o/' /home/hjk/workspace/UB/UserspaceBypass/source_codes/ub/zz_lkm/modules.order | scripts/mod/modpost  -a  -o /home/hjk/workspace/UB/UserspaceBypass/source_codes/ub/zz_lkm/Module.symvers -e -i Module.symvers   -T -
